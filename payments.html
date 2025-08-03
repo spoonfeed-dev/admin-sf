@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Processing - Restaurant Admin</title>
+    <link rel="stylesheet" href="payments.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+    <!-- ✅ REMOVED: Security overlay completely -->
+
+    <!-- ✅ NEW: Enhanced Navigation Bar -->
+    <nav class="payments-navbar">
+        <div class="navbar-brand">
+            <i data-lucide="credit-card" class="brand-icon"></i>
+            <span>Payment & Accounting</span>
+        </div>
+        
+        <div class="navbar-menu">
+            <a href="dashboard.html" class="nav-item">
+                <i data-lucide="bar-chart-3"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="payments.html" class="nav-item active">
+                <i data-lucide="credit-card"></i>
+                <span>Payments</span>
+            </a>
+            <a href="order-management.html" class="nav-item">
+                <i data-lucide="clipboard-list"></i>
+                <span>Orders</span>
+            </a>
+            <a href="menu-management.html" class="nav-item">
+                <i data-lucide="utensils"></i>
+                <span>Menu</span>
+            </a>
+        </div>
+
+        <div class="navbar-info">
+            <div class="datetime-info">
+                <i data-lucide="clock"></i>
+                <span id="current-datetime">Loading...</span>
+            </div>
+            <div class="navbar-actions">
+                <button id="refresh-sessions" class="action-btn">
+                    <i data-lucide="refresh-cw"></i>
+                    <span>Refresh</span>
+                </button>
+                <button id="logout-btn" class="logout-btn">
+                    <i data-lucide="log-out"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Payment Interface -->
+    <main class="payments-main">
+        <!-- Active Sessions Grid -->
+        <div class="sessions-section">
+            <div class="section-header">
+                <h2>Completed Sessions Pending Payment</h2>
+                <div class="status-indicators">
+                    <div class="status-item">
+                        <div class="status-dot pending"></div>
+                        <span>Awaiting Payment</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-dot processing"></div>
+                        <span>Processing</span>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-dot completed"></div>
+                        <span>Paid</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="sessions-grid" class="sessions-grid">
+                <div class="sessions-loading">
+                    <i data-lucide="loader" class="spinning"></i>
+                    <span>Loading active sessions...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Processing Panel -->
+        <div id="payment-panel" class="payment-panel hidden">
+            <div class="panel-header">
+                <div class="table-info">
+                    <h3>Table <span id="selected-table">-</span></h3>
+                    <span id="session-info">Session: Loading...</span>
+                </div>
+                <div class="panel-actions">
+                    <button id="close-panel" class="close-btn">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="payment-content">
+                <!-- Bill Summary -->
+                <div class="bill-section">
+                    <h4>Bill Summary</h4>
+                    <div class="bill-items" id="bill-items">
+                        <!-- Dynamic bill items -->
+                    </div>
+                    
+                    <div class="bill-totals">
+                        <div class="subtotal-row">
+                            <span>Subtotal:</span>
+                            <span id="bill-subtotal">₹0</span>
+                        </div>
+                        <div class="service-row">
+                            <span>Service Charge (10%):</span>
+                            <span id="bill-service">₹0</span>
+                        </div>
+                        <div class="gst-row">
+                            <span>GST (5%):</span>
+                            <span id="bill-gst">₹0</span>
+                        </div>
+                        <div class="discount-row" id="discount-row" style="display: none;">
+                            <span>Discount:</span>
+                            <span id="bill-discount">-₹0</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Total Amount:</span>
+                            <span id="bill-total">₹0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Discount Section -->
+                <div class="discount-section">
+                    <h4>Apply Discount</h4>
+                    <div class="discount-options">
+                        <div class="discount-type">
+                            <label>
+                                <input type="radio" name="discount-type" value="percentage">
+                                <span>Percentage (%)</span>
+                            </label>
+                            <input type="number" id="discount-percentage" placeholder="0" min="0" max="100" disabled>
+                        </div>
+                        <div class="discount-type">
+                            <label>
+                                <input type="radio" name="discount-type" value="coupon">
+                                <span>Coupon Code</span>
+                            </label>
+                            <input type="text" id="discount-coupon" placeholder="Enter coupon code" disabled>
+                        </div>
+                        <div class="discount-type">
+                            <label>
+                                <input type="radio" name="discount-type" value="amount">
+                                <span>Fixed Amount (₹)</span>
+                            </label>
+                            <input type="number" id="discount-amount" placeholder="0" min="0" disabled>
+                        </div>
+                    </div>
+                    <div class="discount-actions">
+                        <button id="apply-discount" class="apply-btn" disabled>
+                            <i data-lucide="percent"></i>
+                            Apply Discount
+                        </button>
+                        <button id="remove-discount" class="remove-btn" style="display: none;">
+                            <i data-lucide="x"></i>
+                            Remove Discount
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="payment-method-section">
+                    <h4>Payment Method</h4>
+                    <div class="payment-methods">
+                        <label class="payment-option">
+                            <input type="radio" name="payment-method" value="cash">
+                            <div class="method-card">
+                                <i data-lucide="banknote"></i>
+                                <span>Cash</span>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment-method" value="card">
+                            <div class="method-card">
+                                <i data-lucide="credit-card"></i>
+                                <span>Card</span>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment-method" value="upi">
+                            <div class="method-card">
+                                <i data-lucide="smartphone"></i>
+                                <span>UPI</span>
+                            </div>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment-method" value="digital">
+                            <div class="method-card">
+                                <i data-lucide="wallet"></i>
+                                <span>Digital Wallet</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Bill Actions -->
+                <div class="bill-actions">
+                    <div class="action-row">
+                        <button id="print-bill" class="action-btn primary">
+                            <i data-lucide="printer"></i>
+                            Print Bill
+                        </button>
+                    </div>
+                    <div class="action-row">
+                        <button id="complete-payment" class="complete-btn" disabled>
+                            <i data-lucide="check-circle"></i>
+                            Complete Payment
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success/Error Notifications -->
+    <div id="notification" class="notification hidden">
+        <div class="notification-content">
+            <i data-lucide="check-circle" class="notification-icon"></i>
+            <span class="notification-message">Operation completed successfully</span>
+        </div>
+    </div>
+
+    <script type="module" src="payments.js"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

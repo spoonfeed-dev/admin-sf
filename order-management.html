@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management - Restaurant Admin</title>
+    <link rel="stylesheet" href="order-management.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body>
+    <!-- Enhanced Navigation -->
+    <nav class="dashboard-navbar">
+        <div class="navbar-brand">
+            <i data-lucide="clipboard-list" class="brand-icon"></i>
+            <span>Order Management</span>
+        </div>
+        
+        <div class="navbar-menu">
+            <a href="dashboard.html" class="nav-item">
+                <i data-lucide="bar-chart-3"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="payments.html" class="nav-item">
+                <i data-lucide="credit-card"></i>
+                <span>Payments</span>
+            </a>
+            <a href="order-management.html" class="nav-item active">
+                <i data-lucide="clipboard-list"></i>
+                <span>Orders</span>
+            </a>
+            <a href="menu-management.html" class="nav-item">
+                <i data-lucide="utensils"></i>
+                <span>Menu</span>
+            </a>
+        </div>
+
+        <div class="navbar-user">
+            <div class="user-info">
+                <span id="user-email">Loading...</span>
+                <small>Restaurant Admin</small>
+            </div>
+            <button id="logout-btn" class="logout-btn">
+                <i data-lucide="log-out"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="dashboard-main">
+        <!-- ✅ UPDATED: Enhanced Header with Today's Info -->
+        <div class="dashboard-header">
+            <div class="header-content">
+                <h1>Today's Orders</h1>
+                <p>Manage and track all orders for <span id="current-date">today</span></p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="total-orders">0</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="pending-orders">0</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="preparing-orders">0</div>
+                    <div class="stat-label">Preparing</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="ready-orders">0</div>
+                    <div class="stat-label">Ready</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="completed-orders">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-card">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="status-filter">
+                            <i data-lucide="filter"></i>
+                            Status Filter
+                        </label>
+                        <select id="status-filter">
+                            <option value="all">All Orders</option>
+                            <option value="pending">Pending</option>
+                            <option value="preparing">Preparing</option>
+                            <option value="ready">Ready</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label for="search-orders">
+                            <i data-lucide="search"></i>
+                            Search Orders
+                        </label>
+                        <input type="text" id="search-orders" placeholder="Search by order #, table, or items...">
+                    </div>
+                    
+                    <div class="filter-actions">
+                        <button id="refresh-orders" class="action-btn refresh-btn">
+                            <i data-lucide="refresh-cw"></i>
+                            <span>Refresh</span>
+                        </button>
+                        <button id="export-orders" class="action-btn export-btn">
+                            <i data-lucide="download"></i>
+                            <span>Export Today</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Grid -->
+        <div class="orders-grid" id="orders-container">
+            <div class="loading-state">
+                <div class="loading-spinner">
+                    <i data-lucide="loader" class="spinning"></i>
+                </div>
+                <h3>Loading Today's Orders...</h3>
+                <p>Fetching latest order data for today</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-icon danger">
+                    <i data-lucide="alert-triangle"></i>
+                </div>
+                <h2>Delete Order</h2>
+                <button id="modal-close" class="modal-close">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <p>Are you sure you want to delete order <strong>#<span id="delete-order-number"></span></strong>?</p>
+                
+                <div class="warning-box">
+                    <i data-lucide="alert-circle"></i>
+                    <div>
+                        <strong>This action cannot be undone!</strong><br>
+                        The order will be permanently removed from today's records and the kitchen display.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button id="cancel-delete" class="modal-btn secondary">
+                    <i data-lucide="x"></i>
+                    Cancel
+                </button>
+                <button id="confirm-delete" class="modal-btn danger">
+                    <i data-lucide="trash-2"></i>
+                    Delete Order
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="order-management.js"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>

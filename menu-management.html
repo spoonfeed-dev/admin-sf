@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant Admin Panel</title>
+    <link rel="stylesheet" href="menu-management.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Login Container -->
+    <div id="login-container" class="login-container">
+        <div class="container">
+            <div class="login-header">
+                <i data-lucide="utensils" class="login-icon"></i>
+                <h2>Menu Management</h2>
+                <p>Manage your menu and orders</p>
+            </div>
+            <form id="login-form">
+                <div class="input-group">
+                    <i data-lucide="mail" class="input-icon"></i>
+                    <input type="email" id="login-email" placeholder="Admin Email" required>
+                </div>
+                <div class="input-group">
+                    <i data-lucide="lock" class="input-icon"></i>
+                    <input type="password" id="login-password" placeholder="Password" required>
+                </div>
+                <button type="submit">
+                    <i data-lucide="log-in"></i>
+                    <span>Login to Dashboard</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="admin-dashboard" style="display: none;">
+        <!-- Dashboard Header -->
+        <header>
+            <div class="header-content">
+                <div class="header-left">
+                    <i data-lucide="chef-hat" class="header-icon"></i>
+                    <h1>Menu Management</h1>
+                </div>
+                <div class="header-stats">
+                    <span id="total-items">
+                        <i data-lucide="package"></i>
+                        <span>0 items</span>
+                    </span>
+                    <span id="recommended-count">
+                        <i data-lucide="star"></i>
+                        <span>0 recommended</span>
+                    </span>
+                    <button id="logout-btn">
+                        <i data-lucide="log-out"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Category Management Section -->
+        <div class="category-management-section">
+            <h2>
+                <i data-lucide="folder"></i>
+                Category Management
+            </h2>
+            <div class="category-controls">
+                <div class="add-category-form">
+                    <input type="text" id="new-category-name" placeholder="Enter new category (e.g., Tandoor Items)" maxlength="30">
+                    <button onclick="adminPanel.addCustomCategory()" class="btn-add-category">
+                        <i data-lucide="plus"></i>
+                        Add Category
+                    </button>
+                </div>
+                
+                <div class="existing-categories" id="categories-list">
+                    <h3>Current Categories:</h3>
+                    <div class="categories-grid" id="categories-grid">
+                        <!-- Categories will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Menu Item Form -->
+        <div class="form-section">
+            <h2 id="form-title">
+                <i data-lucide="plus-circle"></i>
+                Add New Menu Item
+            </h2>
+            
+            <form id="add-item-form">
+                <input type="hidden" id="edit-item-id">
+                
+                <div class="form-row">
+                    <div class="input-group">
+                        <label for="item-name">
+                            <i data-lucide="type"></i>
+                            Item Name
+                        </label>
+                        <input type="text" id="item-name" placeholder="e.g., Butter Chicken" required>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="item-price">
+                            <i data-lucide="indian-rupee"></i>
+                            Price (₹)
+                        </label>
+                        <input type="number" id="item-price" placeholder="299" required>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="item-description">
+                        <i data-lucide="file-text"></i>
+                        Description
+                    </label>
+                    <textarea id="item-description" placeholder="Delicious chicken curry in creamy tomato sauce..." rows="3" required></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label for="item-category">
+                        <i data-lucide="tag"></i>
+                        Category
+                    </label>
+                    <select id="item-category" required>
+                        <option value="">Select Category</option>
+                        <option value="starters">Starters</option>
+                        <option value="mains">Main Course</option>
+                        <option value="desserts">Desserts</option>
+                        <option value="beverages">Beverages</option>
+                    </select>
+                </div>
+
+                <!-- Image Upload Section -->
+                <div class="image-upload-section">
+                    <label>
+                        <i data-lucide="image"></i>
+                        Food Image
+                    </label>
+                    <input type="file" id="item-image" accept="image/*" onchange="adminPanel.previewImage(event)">
+                    <div id="image-preview" class="image-preview">
+                        <div class="no-image-placeholder">
+                            <i data-lucide="image-plus"></i>
+                            <p>No image selected</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommendation Settings -->
+                <div class="recommendation-section">
+                    <h3>
+                        <i data-lucide="award"></i>
+                        Marketing Features
+                    </h3>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="is-recommended">
+                            <span class="custom-checkbox"></span>
+                            <span class="checkbox-text">
+                                <i data-lucide="star"></i>
+                                <strong>Chef's Special</strong> - Highlight as recommended item
+                            </span>
+                        </label>
+                        
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="is-bestseller">
+                            <span class="custom-checkbox"></span>
+                            <span class="checkbox-text">
+                                <i data-lucide="trending-up"></i>
+                                <strong>Best Seller</strong> - Mark as customer favorite
+                            </span>
+                        </label>
+                        
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="is-new">
+                            <span class="custom-checkbox"></span>
+                            <span class="checkbox-text">
+                                <i data-lucide="sparkles"></i>
+                                <strong>New Item</strong> - Highlight as recently added
+                            </span>
+                        </label>
+                        
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="is-spicy">
+                            <span class="custom-checkbox"></span>
+                            <span class="checkbox-text">
+                                <i data-lucide="flame"></i>
+                                <strong>Spicy</strong> - Add spice indicator
+                            </span>
+                        </label>
+                        
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="is-vegetarian">
+                            <span class="custom-checkbox"></span>
+                            <span class="checkbox-text">
+                                <i data-lucide="leaf"></i>
+                                <strong>Vegetarian</strong> - Mark as veg-friendly
+                            </span>
+                        </label>
+                    </div>
+                    
+                    <div class="priority-section">
+                        <label for="display-priority">
+                            <i data-lucide="arrow-up"></i>
+                            Display Priority (1-10):
+                        </label>
+                        <input type="range" id="display-priority" min="1" max="10" value="5">
+                        <span id="priority-value">5</span>
+                        <small>Higher priority items appear first in the menu</small>
+                    </div>
+                </div>
+
+                <div class="form-buttons">
+                    <button type="submit" id="add-item-btn" class="btn-primary">
+                        <span id="btn-text">
+                            <i data-lucide="plus"></i>
+                            Add Item to Menu
+                        </span>
+                        <span id="loading-text" style="display: none;">
+                            <i data-lucide="loader-2" class="spinning"></i>
+                            Saving...
+                        </span>
+                    </button>
+                    <button type="button" id="cancel-edit-btn" onclick="adminPanel.cancelEdit()" style="display: none;">
+                        <i data-lucide="x"></i>
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <h3>
+                <i data-lucide="zap"></i>
+                Quick Actions
+            </h3>
+            <div class="action-buttons">
+                <button onclick="adminPanel.toggleAllAvailability(true)" class="action-btn available">
+                    <i data-lucide="check-circle"></i>
+                    Mark All Available
+                </button>
+                <button onclick="adminPanel.toggleAllAvailability(false)" class="action-btn unavailable">
+                    <i data-lucide="x-circle"></i>
+                    Mark All Unavailable
+                </button>
+                <button onclick="adminPanel.clearAllRecommendations()" class="action-btn neutral">
+                    <i data-lucide="eraser"></i>
+                    Clear All Recommendations
+                </button>
+            </div>
+        </div>
+
+        <!-- Menu Display -->
+        <div id="menu-display">
+            <div class="menu-header">
+                <h2>
+                    <i data-lucide="menu"></i>
+                    Menu Items
+                </h2>
+                <div class="view-toggles">
+                    <button class="view-btn active" onclick="adminPanel.setView('all')">
+                        <i data-lucide="grid-3x3"></i>
+                        All Items
+                    </button>
+                    <button class="view-btn" onclick="adminPanel.setView('recommended')">
+                        <i data-lucide="star"></i>
+                        Recommended
+                    </button>
+                    <button class="view-btn" onclick="adminPanel.setView('unavailable')">
+                        <i data-lucide="eye-off"></i>
+                        Unavailable
+                    </button>
+                </div>
+            </div>
+            <div id="items-list" class="items-list">
+                <!-- Menu items will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div id="custom-modal" class="modal-overlay">
+        <div class="modal-container">
+            <div class="modal-header">
+                <div class="modal-icon" id="modal-icon">
+                    <i data-lucide="alert-triangle" id="modal-icon-symbol"></i>
+                </div>
+                <h3 class="modal-title" id="modal-title">Confirm Action</h3>
+            </div>
+            <div class="modal-body">
+                <p class="modal-message" id="modal-message">Are you sure you want to proceed?</p>
+            </div>
+            <div class="modal-actions" id="modal-actions">
+                <button class="modal-btn modal-btn-secondary" id="modal-cancel">
+                    <i data-lucide="x"></i>
+                    Cancel
+                </button>
+                <button class="modal-btn modal-btn-primary" id="modal-confirm">
+                    <i data-lucide="check"></i>
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="menu-managment.js"></script>
+
+    <!-- Initialize Lucide Icons -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
