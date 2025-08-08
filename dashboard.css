@@ -35,6 +35,10 @@
     box-sizing: border-box;
 }
 
+html, body{
+    overflow-x: hidden;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -921,9 +925,55 @@ body {
         max-width: 1200px;
         padding: 0 24px 32px;
     }
+    .metric-card{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .metric-content{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .metric-card:nth-child(3){
+        padding-top: 15px;
+        padding-bottom: 40px;
+    }
+    .metric-card:nth-child(4){
+        padding-top: 15px;
+        padding-bottom: 40px;
+    }
+    .navbar-user{
+        gap: 10px;
+    }
+    .user-info span{
+        font-size: 10px;
+    }
 }
 
 @media (max-width: 1024px) {
+    .navbar-brand span{
+        width: 100px;
+    }
+    .navbar-user{
+        display: flex;
+        flex-direction: column;
+        align-items: end;
+        gap: 2px;
+    }
+    .navbar-user button{
+        padding: 5px;
+    }
+    .navbar-user button span{
+        font-size: 14px;
+    }
+    #user-email{
+        font-size: 10px;
+        margin-bottom: -5px;
+    }
+    .user-info small{
+        font-size: 10px;
+    }
     .analytics-grid {
         grid-template-columns: 1fr;
         height: auto;
